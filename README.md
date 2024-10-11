@@ -46,8 +46,8 @@ VisionVault-PDFRAG is an advanced, vision-based Retrieval-Augmented Generation (
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/PromtEngineer/VisionVault-PDFRAG.git
-   cd VisionVault-PDFRAG
+   git clone https://github.com/andreaparker/VV-PDFRAG.git
+   cd VV-PDFRAG
    ```
 
 2. Set up the environment:
@@ -60,7 +60,6 @@ VisionVault-PDFRAG is an advanced, vision-based Retrieval-Augmented Generation (
    ```
 
 3. Configure API keys:
-<<<<<<< HEAD
 
 ### 3.1. For Local Development
 
@@ -120,10 +119,9 @@ terraform output openai_api_key
 If configured correctly, these commands should display your API key (or a masked version of it in the case of Terraform).
 
 <<<<<<< HEAD
-## 4. Launch the application:
-=======
-4. Launch the application:
-=======
+## 3.0. Launch the application:
+
+`python app.py`
 
 ### 3.1. For Local Development
 
