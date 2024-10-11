@@ -46,7 +46,7 @@ VisionVault-PDFRAG is an advanced, vision-based Retrieval-Augmented Generation (
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/PromtEngineer/VisionVault-PDFRAG.git
+   git clone https://github.com/andreaparker/VisionVault-PDFRAG.git
    cd VisionVault-PDFRAG
    ```
 
