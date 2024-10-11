@@ -107,19 +107,29 @@ For Terraform (after apply):
 terraform output openai_api_key
 ```
 
+### 3.4 Installing `vllm`
+`vllm` is a A high-throughput and memory-efficient inference and serving engine for large language models (LLMs). This script detects if you have a CUDA-compliant GPU on your system and if so will install the `vllm` GPU version for you; if no GPU is detected, the CPU-only version of `vllm` will be installed. Learn more about the `vllm` installation process [here](https://docs.vllm.ai/en/stable/getting_started/installation.html).
+
+  ```bash
+   python install_vllm.py
+   ```
+
+
 If configured correctly, these commands should display your API key (or a masked version of it in the case of Terraform).
 
-4. Launch the application:
+## 4. Launch the application:
    ```bash
    python app.py
    ```
 
-4.1 After launching the app
+### 4.1 After launching the app
 
 - a `chat_messages.html` file will be created: this file creates a visual chat history where you can see who said what, and any images that were part of the conversation
+- your `byaldi` indexes' directory will be created
+- model weights, checkpoints will be downloaded from the HuggingFace Hub to your local disk upon loading models for the first time
 
 
-5. Access the web interface at `http://localhost:5050/`
+## 5. Access the web interface at `http://localhost:5050/`
 
 ## Usage Guide
 
