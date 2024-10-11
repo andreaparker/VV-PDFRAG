@@ -26,8 +26,13 @@ def index_documents(folder_path, index_name='document_index', index_path=None, i
         convert_docs_to_pdfs(folder_path)
         logger.info("Conversion of non-PDF documents to PDFs completed.")
 
+       
         # Initialize RAG model
         RAG = RAGMultiModalModel.from_pretrained(indexer_model)
+
+         # Switch model to half precision to save GPU memory; not needed on all devices
+        # RAG.half()
+        
         if RAG is None:
             raise ValueError(f"Failed to initialize RAGMultiModalModel with model {indexer_model}")
         logger.info(f"RAG model initialized with {indexer_model}.")
