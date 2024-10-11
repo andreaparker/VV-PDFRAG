@@ -1,0 +1,21 @@
+#!/bin/bash
+apt-get update
+apt-get install -y python3-pip git
+
+# Clone the GitHub repository
+git clone ${repo_url} /opt/app
+
+# Navigate to the app directory
+cd /opt/app
+
+# Install Python dependencies
+pip3 install -r requirements.txt
+
+# Set OpenAI API Key as an environment variable
+export OPENAI_API_KEY=${openai_api_key}
+
+# Run the vLLM installation script
+python3 install_vllm.py  # This will check for CUDA availability and install vLLM accordingly
+
+# Run your Flask app
+python3 app.py
