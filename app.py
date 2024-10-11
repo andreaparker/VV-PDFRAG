@@ -17,7 +17,10 @@ os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 # Initialize the Flask application
 app = Flask(__name__)
-app.secret_key = 'your_secret_key'  # Replace with a secure secret key
+#app.secret_key = 'your_secret_key'  # Replace with a secure secret key
+
+# Use the secret key from the environment (injected by Cloud Run from Secret Manager)
+app.secret_key = os.environ.get('SECRET_KEY', 'fallback_secret_key')  # The fallback is just for local testing
 
 logger = get_logger(__name__)
 
