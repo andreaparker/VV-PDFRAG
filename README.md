@@ -46,19 +46,20 @@ VisionVault-PDFRAG is an advanced, vision-based Retrieval-Augmented Generation (
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/andreaparker/VV-PDFRAG.git
-   cd VV-PDFRAG
+   git clone https://github.com/PromtEngineer/VisionVault-PDFRAG.git
+   cd VisionVault-PDFRAG
    ```
 
 2. Set up the environment:
    ```bash
-   conda create -n visionvault-pdfrag-local python=3.10
-   conda activate visionvault-pdfrag-local
+   conda create -n visionvault-pdfrag python=3.10
+   conda activate visionvault-pdfrag
    pip install -r requirements.txt
    pip install git+https://github.com/huggingface/transformers
    ```
 
 3. Configure API keys:
+<<<<<<< HEAD
 
 ### 3.1. For Local Development
 
@@ -110,16 +111,76 @@ terraform output openai_api_key
 If configured correctly, these commands should display your API key (or a masked version of it in the case of Terraform).
 
 4. Launch the application:
+=======
+
+### 3.1. For Local Development
+
+If you're running the project locally, you can set the API key as an environment variable:
+
+```bash
+export OPENAI_API_KEY='your_openai_api_key_here'
+```
+
+Replace 'your_openai_api_key_here' with your actual OpenAI API key.
+
+For persistence across terminal sessions, you can add this line to your `~/.bashrc` or `~/.zshrc` file.
+
+### 3.2. For Terraform Deployment
+
+When deploying with Terraform, you'll need to provide the API key as a variable during the `terraform apply` command:
+
+```bash
+terraform apply -var="OPENAI_API_KEY=your_openai_api_key_here"
+```
+
+We ignore the lower-case naming convention for this variable name.
+
+Alternatively, you can create a `terraform.tfvars` file in your project directory with the following content:
+
+```hcl
+openai_api_key = "your_openai_api_key_here"
+```
+
+⚠️ **Important Security Note**: 
+- Never commit your API key to version control. 
+- If using a `terraform.tfvars` file, make sure it's listed in your `.gitignore`.
+- For CI/CD pipelines, use secure environment variables or secrets management provided by your CI/CD tool.
+
+### 3.3 Verifying the API Key
+
+To verify that your API key is correctly set, you can run the following command:
+
+For local development:
+```bash
+echo $OPENAI_API_KEY
+```
+
+For Terraform (after apply):
+```bash
+terraform output openai_api_key
+```
+
+If configured correctly, these commands should display your API key (or a masked version of it in the case of Terraform).
+
+### 3.4 Installing `vllm`
+`vllm` is a A high-throughput and memory-efficient inference and serving engine for large language models (LLMs). This script detects if you have a CUDA-compliant GPU on your system and if so will install the `vllm` GPU version for you; if no GPU is detected, the CPU-only version of `vllm` will be installed. Learn more about the `vllm` installation process [here](https://docs.vllm.ai/en/stable/getting_started/installation.html).
+
+  ```bash
+   python install_vllm.py
+   ```
+
+### 4. Launch the application:
    ```bash
    python app.py
    ```
 
-4.1 After launching the app
+### 4.1 After launching the app
 
 - a `chat_messages.html` file will be created: this file creates a visual chat history where you can see who said what, and any images that were part of the conversation
 
 
-5. Access the web interface at `http://localhost:5050/`
+
+### 5. Access the web interface at `http://localhost:5050/`
 
 ## Usage Guide
 
@@ -155,7 +216,7 @@ VisionVault-PDFRAG/
 
 ## Adding your favorite models
 
-To add in new models or domain-specific models you can create a branch, work on that and then submit your feature branch back to us:
+To add in new models or domain-specific models do this:
 
 1. Fork the repository.
 2. Create a feature branch: `git checkout -b new-feature`
@@ -165,4 +226,4 @@ To add in new models or domain-specific models you can create a branch, work on 
 
 ## Learn More
 
-For a detailed understanding of the system's workflow and architecture, please refer to the full documentation which will be written in early Q4 2024.
+For a detailed understanding of the system's workflow and architecture, please refer to the full documentation which will be written mid-to-late October 2024.
