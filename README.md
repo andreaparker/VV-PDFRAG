@@ -46,14 +46,14 @@ VisionVault-PDFRAG is an advanced, vision-based Retrieval-Augmented Generation (
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/andreaparker/VisionVault-PDFRAG.git
-   cd VisionVault-PDFRAG
+   git clone https://github.com/andreaparker/VV-PDFRAG.git
+   cd VV-PDFRAG
    ```
 
 2. Set up the environment:
    ```bash
-   conda create -n visionvault-pdfrag python=3.10
-   conda activate visionvault-pdfrag
+   conda create -n visionvault-pdfrag-local python=3.10
+   conda activate visionvault-pdfrag-local
    pip install -r requirements.txt
    pip install git+https://github.com/huggingface/transformers
    ```
@@ -155,7 +155,7 @@ VisionVault-PDFRAG/
 
 ## Adding your favorite models
 
-To add in new models or domain-specific models do this:
+To add in new models or domain-specific models you can create a branch, work on that and then submit your feature branch back to us:
 
 1. Fork the repository.
 2. Create a feature branch: `git checkout -b new-feature`
@@ -165,4 +165,4 @@ To add in new models or domain-specific models do this:
 
 ## Learn More
 
-For a detailed understanding of the system's workflow and architecture, please refer to the full documentation which will be written mid-to-late October 2024.
+For a detailed understanding of the system's workflow and architecture, please refer to the full documentation which will be written in early Q4 2024.
