@@ -1,0 +1,170 @@
+/* static/css/style.css */
+
+:root {
+    --superlinked-orange: #FF5500;
+    --superlinked-dark: #1A1A1A;
+    --superlinked-light: #F5F5F5;
+    --superlinked-gray: #333333;
+    --superlinked-light-gray: #CCCCCC;
+}
+
+body {
+    background-color: var(--superlinked-dark);
+    color: var(--superlinked-light);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Customize chat window */
+.chat-window {
+    background-color: var(--superlinked-gray);
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Customize messages */
+.message {
+    margin-bottom: 15px;
+    padding: 10px 15px;
+    border-radius: 18px;
+    max-width: 80%;
+}
+
+.user-message {
+    background-color: var(--superlinked-orange);
+    color: var(--superlinked-light);
+    align-self: flex-end;
+    margin-left: auto;
+}
+
+.bot-message {
+    background-color: var(--superlinked-light-gray);
+    color: var(--superlinked-dark);
+    align-self: flex-start;
+    margin-right: auto;
+}
+
+/* Customize images */
+.img-thumbnail {
+    cursor: pointer;
+    transition: transform 0.3s ease;
+    border: 2px solid var(--superlinked-orange);
+}
+
+.img-thumbnail:hover {
+    transform: scale(1.05);
+}
+
+/* Sidebar */
+.list-group-item {
+    background-color: var(--superlinked-gray);
+    color: var(--superlinked-light);
+    border-color: var(--superlinked-orange);
+}
+
+.list-group-item.active {
+    background-color: var(--superlinked-orange);
+    border-color: var(--superlinked-orange);
+    color: var(--superlinked-light);
+}
+
+.list-group-item a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.list-group-item a:hover {
+    color: var(--superlinked-orange);
+    text-decoration: none;
+}
+
+/* Delete Session Button */
+.delete-session-btn {
+    font-size: 0.8rem;
+    padding: 0.2rem 0.5rem;
+    background-color: var(--superlinked-orange);
+    border-color: var(--superlinked-orange);
+    color: var(--superlinked-light);
+}
+
+.delete-session-btn:hover {
+    background-color: #FF7733;
+    border-color: #FF7733;
+}
+
+/* Spinner Overlay */
+.spinner-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1050;
+    background-color: rgba(26, 26, 26, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Spinner */
+.spinner-border {
+    width: 3rem;
+    height: 3rem;
+    color: var(--superlinked-orange);
+}
+
+/* Additional Superlinked-inspired styles */
+
+/* Buttons */
+.btn-primary {
+    background-color: var(--superlinked-orange);
+    border-color: var(--superlinked-orange);
+    color: var(--superlinked-light);
+}
+
+.btn-primary:hover {
+    background-color: #FF7733;
+    border-color: #FF7733;
+}
+
+/* Input fields */
+.form-control {
+    background-color: var(--superlinked-gray);
+    color: var(--superlinked-light);
+    border-color: var(--superlinked-orange);
+}
+
+.form-control:focus {
+    border-color: var(--superlinked-orange);
+    box-shadow: 0 0 0 0.2rem rgba(255, 85, 0, 0.25);
+}
+
+/* Navbar */
+.navbar {
+    background-color: var(--superlinked-dark);
+}
+
+.navbar-brand, .nav-link {
+    color: var(--superlinked-light) !important;
+}
+
+.nav-link:hover {
+    color: var(--superlinked-orange) !important;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--superlinked-dark);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--superlinked-orange);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #FF7733;
+}

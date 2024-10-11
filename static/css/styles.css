@@ -1,0 +1,156 @@
+:root {
+    --superlinked-orange: #FF5500;
+    --superlinked-dark: #1A1A1A;
+    --superlinked-light: #F5F5F5;
+    --superlinked-gray: #333333;
+    --superlinked-light-gray: #CCCCCC;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--superlinked-dark);
+    color: var(--superlinked-light);
+    font-size: 14px;
+}
+
+/* Sidebar styles */
+#sidebar {
+    min-height: 100vh;
+    background-color: var(--superlinked-gray);
+    color: var(--superlinked-light);
+    transition: all 0.3s;
+    display: flex;
+    flex-direction: column;
+}
+
+#sidebar .sidebar-header {
+    padding: 20px;
+    background: var(--superlinked-dark);
+}
+
+#sidebar ul li a {
+    color: var(--superlinked-light);
+}
+
+#sidebar ul li a:hover {
+    color: var(--superlinked-orange);
+    background: var(--superlinked-light);
+}
+
+#sidebar ul li.active > a, a[aria-expanded="true"] {
+    color: var(--superlinked-light);
+    background: var(--superlinked-orange);
+}
+
+/* Main content styles */
+main {
+    transition: all 0.3s;
+    height: 100vh;
+    overflow-y: auto;
+}
+
+/* Chat container styles */
+.chat-container {
+    background-color: var(--superlinked-gray);
+    box-shadow: 0 1px 3px rgba(255, 85, 0, 0.12), 0 1px 2px rgba(255, 85, 0, 0.24);
+}
+
+.chat-input-container {
+    background-color: var(--superlinked-dark);
+    border-top: 1px solid var(--superlinked-orange);
+}
+
+/* Message styles */
+.user-message {
+    background-color: var(--superlinked-orange);
+    color: var(--superlinked-light);
+}
+
+.ai-message {
+    background-color: var(--superlinked-gray);
+    color: var(--superlinked-light);
+}
+
+/* Loading indicator styles */
+#loading-indicator {
+    background-color: rgba(26, 26, 26, 0.9);
+    color: var(--superlinked-light);
+}
+
+/* Indexed files list styles */
+#indexed-files-list .list-group-item {
+    background-color: var(--superlinked-gray);
+    color: var(--superlinked-light);
+    border-color: var(--superlinked-orange);
+}
+
+.session-name:hover {
+    color: var(--superlinked-orange);
+}
+
+/* Options popup styles */
+.options-popup {
+    background-color: var(--superlinked-gray);
+    border: 1px solid var(--superlinked-orange);
+}
+
+.option:hover {
+    background-color: var(--superlinked-orange);
+}
+
+.session-list .nav-item.current-session {
+    background-color: var(--superlinked-orange);
+}
+
+/* Markdown styles */
+.ai-message code {
+    background-color: var(--superlinked-dark);
+    color: var(--superlinked-orange);
+}
+
+.ai-message pre {
+    background-color: var(--superlinked-dark);
+    color: var(--superlinked-light);
+    border: 1px solid var(--superlinked-orange);
+}
+
+/* Button styles */
+.btn-primary {
+    background-color: var(--superlinked-orange);
+    border-color: var(--superlinked-orange);
+    color: var(--superlinked-light);
+}
+
+.btn-primary:hover {
+    background-color: #FF7733;
+    border-color: #FF7733;
+}
+
+/* Form control styles */
+.form-control {
+    background-color: var(--superlinked-gray);
+    color: var(--superlinked-light);
+    border-color: var(--superlinked-orange);
+}
+
+.form-control:focus {
+    border-color: var(--superlinked-orange);
+    box-shadow: 0 0 0 0.2rem rgba(255, 85, 0, 0.25);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--superlinked-dark);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--superlinked-orange);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #FF7733;
+}

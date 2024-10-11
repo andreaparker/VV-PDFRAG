@@ -1,0 +1,21 @@
+# Web framework
+flask
+
+#ColPali
+byaldi
+
+# Core ML libraries
+torch
+torchvision
+
+# Project-specific libraries
+qwen-vl-utils
+
+# API integration
+openai
+
+# Utility libraries
+einops
+docx2pdf
+markdown
+
