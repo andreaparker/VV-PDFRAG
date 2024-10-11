@@ -54,6 +54,7 @@ VisionVault-PDFRAG is an advanced, vision-based Retrieval-Augmented Generation (
    ```bash
    conda create -n visionvault-pdfrag python=3.10
    conda activate visionvault-pdfrag
+   apt-get install -y poppler-utils
    pip install -r requirements.txt
    pip install git+https://github.com/huggingface/transformers
    ```
