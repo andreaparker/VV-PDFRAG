@@ -22,10 +22,12 @@
             </div>
         {% endfor %}
     </div>
-    <div class="chat-input-container">
+    
+    <div class="chat-input-container" style="position: relative;">
         <form id="chat-form" enctype="multipart/form-data">
             <div class="input-group">
                 <input type="text" id="query" name="query" class="form-control" placeholder="Type your message...">
+
                 <label class="input-group-text" for="file-upload">
                     <i class="fas fa-paperclip"></i>
                 </label>
@@ -35,6 +37,16 @@
                 </button>
             </div>
         </form>
+
+        <!-- Answer Length Toggle -->
+        <div class="answer-length-toggle">
+            <input type="checkbox" id="answer-length" name="answer_length" value="long">
+            <label for="answer-length" class="toggle-label">
+                <span class="toggle-inner"></span>
+                <span class="toggle-switch"></span>
+            </label>
+            <span class="toggle-text">Long Answer</span>
+        </div>
     </div>
 </div>
 

@@ -18,12 +18,12 @@ def encode_image(image_path):
   with open(image_path, "rb") as image_file:
     return base64.b64encode(image_file.read()).decode('utf-8')
 
-def generate_response(images, query, session_id, resized_height=280, resized_width=280, model_choice='qwen'):
+def generate_response(images, query, session_id, resized_height=280, resized_width=280, model_choice='qwen', answer_length='short'):
     """
     Generates a response using the selected model based on the query and images.
     """
     try:
-        logger.info(f"Generating response using model '{model_choice}'.")
+        logger.info(f"Generating response using model '{model_choice}' with answer length '{answer_length}'.")
         
         # Convert resized_height and resized_width to integers
         resized_height = int(resized_height)
@@ -39,6 +39,8 @@ def generate_response(images, query, session_id, resized_height=280, resized_wid
             logger.warning("No valid images found for analysis.")
             return "No images could be loaded for analysis."
         
+    
+
         if model_choice == 'qwen':
             from qwen_vl_utils import process_vision_info
             # Load cached model
@@ -71,7 +73,14 @@ def generate_response(images, query, session_id, resized_height=280, resized_wid
                 return_tensors="pt",
             )
             inputs = inputs.to(device)
-            generated_ids = model.generate(**inputs, max_new_tokens=128)
+            # Determine max_new_tokens based on answer_length
+            if answer_length == 'short':
+                max_new_tokens = 128
+            elif answer_length == 'long':
+                max_new_tokens = 500
+            else:
+                max_new_tokens = 128  # Default to short if invalid value
+            generated_ids = model.generate(**inputs, max_new_tokens=max_new_tokens)
             generated_ids_trimmed = [
                 out_ids[len(in_ids):] for in_ids, out_ids in zip(inputs.input_ids, generated_ids)
             ]
@@ -83,46 +92,47 @@ def generate_response(images, query, session_id, resized_height=280, resized_wid
         
         elif model_choice == 'gpt4':
             api_key = os.getenv("OPENAI_API_KEY")
-            client = OpenAI(api_key=api_key)
+            openai.api_key =api_key
             
-            try:
-                content = [{"type": "text", "text": query}]
-                
-                for img_path in valid_images:
-                    logger.info(f"Processing image: {img_path}")
-                    if os.path.exists(img_path):
-                        base64_image = encode_image(img_path)
-                        content.append({
-                            "type": "image_url",
-                            "image_url": {
-                                "url": f"data:image/jpeg;base64,{base64_image}"
-                            }
-                        })
-                    else:
-                        logger.warning(f"Image file not found: {img_path}")
-                
-                if len(content) == 1:  # Only text, no images
-                    return "No images could be loaded for analysis."
-                
-                response = client.chat.completions.create(
-                    model="gpt-4o",
-                    messages=[
-                        {
-                            "role": "user",
-                            "content": content
+            
+            
+            # Determine max_tokens based on answer_length
+            max_tokens = 128 if answer_length == 'short' else 500
+
+            # Prepare the messages content with text and images
+            content = [
+                {"type": "text", "text": query}
+            ]
+
+            # Add images to the content
+            for img_path in images:
+                with open(img_path, "rb") as img_file:
+                    image_bytes = img_file.read()
+                    encoded_image = base64.b64encode(image_bytes).decode('utf-8')
+                    content.append({
+                        "type": "image",
+                        "image": {
+                            "bytes": encoded_image
                         }
-                    ],
-                    max_tokens=1024
-                )
-                
-                generated_text = response.choices[0].message.content
-                logger.info("Response generated using GPT-4 model.")
-                return generated_text
+                    })
+
+            messages = [
+                {"role": "user", "content": content}
+            ]
+
+            # Send the request to OpenAI API
+            client = OpenAI()
+            response = client.chat.completions.create(
+                model="gpt-4o",
+                messages=messages,
+                max_tokens=max_tokens,
+                temperature=0.7
+            )
+
+            generated_text = response['choices'][0]['message']['content']
+            logger.info("Response generated using GPT-4 with Vision model.")
+            return generated_text
             
-            except Exception as e:
-                logger.error(f"Error in GPT-4 processing: {str(e)}", exc_info=True)
-                return f"An error occurred while processing the images: {str(e)}"
-        
         else:
             logger.error(f"Invalid model choice: {model_choice}")
             return "Invalid model selected."

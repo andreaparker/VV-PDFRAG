@@ -1,28 +1,38 @@
 import os
 import uuid
 import json
-import time  # Add this import at the top of the file
+import time
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 from markupsafe import Markup
 from models.indexer import index_documents
 from models.retriever import retrieve_documents
 from models.responder import generate_response
 from werkzeug.utils import secure_filename
+from werkzeug.security import generate_password_hash, check_password_hash
+
 from logger import get_logger
 from byaldi import RAGMultiModalModel
 import markdown
+from flask_login import LoginManager, UserMixin, UserMixin, login_user, login_required, logout_user, current_user
 
 # Set the TOKENIZERS_PARALLELISM environment variable to suppress warnings
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
-# Initialize the Flask application
+# **Initialize the Flask application**
 app = Flask(__name__)
-#app.secret_key = 'your_secret_key'  # Replace with a secure secret key
 
-# Use the secret key from the environment (injected by Cloud Run from Secret Manager)
-app.secret_key = os.environ.get('SECRET_KEY', 'fallback_secret_key')  # The fallback is just for local testing
+# **Initialize the LoginManager**
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'  # Specify the login route
 
+# Use the secret key from the environment
+app.secret_key = os.environ.get('SECRET_KEY', 'fallback_secret_key')  # Replace with a secure secret key
+
+# Initialize the logger
 logger = get_logger(__name__)
+
+# **Configuration Settings**
 
 # Configure upload folders
 app.config['UPLOAD_FOLDER'] = 'uploaded_documents'
@@ -34,6 +44,29 @@ app.config['INDEX_FOLDER'] = os.path.join(os.getcwd(), '.byaldi')  # Set to .bya
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 os.makedirs(app.config['STATIC_FOLDER'], exist_ok=True)
 os.makedirs(app.config['SESSION_FOLDER'], exist_ok=True)
+
+# **User Authentication Setup**
+
+# User model
+class User(UserMixin):
+    def __init__(self, id):
+        self.id = id
+        # You can add more attributes if needed
+
+# In-memory user store (for demonstration purposes)
+users = {
+    'admin': {
+        'password': generate_password_hash('ch4ng3m3!')  # Replace with your desired password
+    }
+}
+
+@login_manager.user_loader
+def load_user(user_id):
+    if user_id in users:
+        return User(user_id)
+    return None
+
+# **Application Initialization**
 
 # Initialize global variables
 RAG_models = {}  # Dictionary to store RAG models per session
@@ -85,12 +118,47 @@ def make_session_permanent():
     if 'session_id' not in session:
         session['session_id'] = str(uuid.uuid4())
 
+# **Routes**
+
+# **Login and Logout Routes**
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+
+        user_record = users.get(username)
+        if user_record and check_password_hash(user_record['password'], password):
+            user = User(username)
+            login_user(user)
+            flash('Logged in successfully.', 'success')
+            next_page = request.args.get('next')
+            return redirect(next_page or url_for('chat'))
+        else:
+            flash('Invalid username or password.', 'danger')
+            return render_template('login.html')
+    else:
+        return render_template('login.html')
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    flash('You have been logged out.', 'info')
+    return redirect(url_for('login'))
+
+# **Home Route**
 
 @app.route('/', methods=['GET'])
+@login_required
 def home():
     return redirect(url_for('chat'))
 
+# **Chat Route**
+
 @app.route('/chat', methods=['GET', 'POST'])
+@login_required
 def chat():
     if 'session_id' not in session:
         session['session_id'] = str(uuid.uuid4())
@@ -110,7 +178,10 @@ def chat():
         session_name = 'Untitled Session'
         indexed_files = []
 
-    if request.method == 'POST':
+    if request.method == 'POST' and 'send_query' in request.form:
+        query = request.form['query']
+        # Retrieve answer length from the form data
+        answer_length = request.form.get('answer_length', 'short')
         if 'upload' in request.form:
             # Handle file upload and indexing
             files = request.files.getlist('file')
@@ -158,6 +229,8 @@ def chat():
 
         elif 'send_query' in request.form:
             query = request.form['query']
+            # Determine answer length preference
+            answer_length = 'long' if 'answer_length' in request.form else 'short'
             
             try:
                 generation_model = session.get('generation_model', 'qwen')
@@ -175,10 +248,21 @@ def chat():
                 
                 # Generate response with full image paths
                 full_image_paths = [os.path.join(app.static_folder, img) for img in retrieved_images]
-                response = generate_response(full_image_paths, query, session_id, resized_height, resized_width, generation_model)
+                response = generate_response(
+                    full_image_paths, query, session_id, resized_height,
+                    resized_width, generation_model, answer_length=answer_length  # Pass the answer length parameter
+                )
                 
                 # Parse markdown in the response
                 parsed_response = Markup(markdown.markdown(response))
+
+                # **Inline Section References**
+                # Detect and inline section references in the response
+                sections_referenced = find_section_references(response)
+                if sections_referenced:
+                    sections_dict = load_sections_for_session(session_id)
+                    section_texts = get_section_texts(sections_referenced, sections_dict)
+                    parsed_response = embed_section_text(parsed_response, section_texts)
 
                 # Update chat history
                 chat_history.append({"role": "user", "content": query})
@@ -234,7 +318,10 @@ def chat():
                            resized_height=resized_height, resized_width=resized_width,
                            session_name=session_name, indexed_files=indexed_files)
 
+# **Additional Routes with @login_required Decorator**
+
 @app.route('/switch_session/<session_id>')
+@login_required
 def switch_session(session_id):
     session['session_id'] = session_id
     if session_id not in RAG_models:
@@ -243,6 +330,7 @@ def switch_session(session_id):
     return redirect(url_for('chat'))
 
 @app.route('/rename_session', methods=['POST'])
+@login_required
 def rename_session():
     session_id = request.form.get('session_id')
     new_session_name = request.form.get('new_session_name', 'Untitled Session')
@@ -262,6 +350,7 @@ def rename_session():
         return jsonify({"success": False, "message": "Session not found."})
 
 @app.route('/delete_session/<session_id>', methods=['POST'])
+@login_required
 def delete_session(session_id):
     try:
         session_file = os.path.join(app.config['SESSION_FOLDER'], f"{session_id}.json")
@@ -290,12 +379,13 @@ def delete_session(session_id):
         return jsonify({"success": False, "message": f"An error occurred while deleting the session: {str(e)}"})
 
 @app.route('/settings', methods=['GET', 'POST'])
+@login_required
 def settings():
     if request.method == 'POST':
         indexer_model = request.form.get('indexer_model', 'vidore/colpali')
         generation_model = request.form.get('generation_model', 'qwen')
-        resized_height = request.form.get('resized_height', 280)
-        resized_width = request.form.get('resized_width', 280)
+        resized_height = session.get('resized_height', 280)
+        resized_width = session.get('resized_width', 280)
         session['indexer_model'] = indexer_model
         session['generation_model'] = generation_model
         session['resized_height'] = resized_height
@@ -316,6 +406,7 @@ def settings():
                                resized_width=resized_width)
 
 @app.route('/new_session')
+@login_required
 def new_session():
     session_id = str(uuid.uuid4())
     session['session_id'] = session_id
@@ -334,6 +425,7 @@ def new_session():
     return redirect(url_for('chat'))
 
 @app.route('/get_indexed_files/<session_id>')
+@login_required
 def get_indexed_files(session_id):
     session_file = os.path.join(app.config['SESSION_FOLDER'], f"{session_id}.json")
     if os.path.exists(session_file):
@@ -343,6 +435,71 @@ def get_indexed_files(session_id):
         return jsonify({"success": True, "indexed_files": indexed_files})
     else:
         return jsonify({"success": False, "message": "Session not found."})
+
+# **Helper Functions for Inline Section References**
+
+def find_section_references(answer_text):
+    import re
+    pattern = r'Section\s+(\d+(\.\d+)*)'
+    matches = re.findall(pattern, answer_text)
+    sections = [match[0] for match in matches]
+    return sections
+
+def load_sections_for_session(session_id):
+    """
+    Load parsed sections for the session's documents.
+    """
+    session_folder = os.path.join(app.config['UPLOAD_FOLDER'], session_id)
+    sections = {}
+    for filename in os.listdir(session_folder):
+        file_path = os.path.join(session_folder, filename)
+        if filename.endswith('.pdf') or filename.endswith('.txt'):
+            file_sections = parse_document(file_path)
+            sections.update(file_sections)
+    return sections
+
+def parse_document(file_path):
+    """
+    Parse the document and extract sections.
+    """
+    import re
+    sections = {}
+    try:
+        if file_path.endswith('.pdf'):
+            from pdfminer.high_level import extract_text
+            text = extract_text(file_path)
+        else:
+            with open(file_path, 'r') as f:
+                text = f.read()
+        current_section = None
+        for line in text.split('\n'):
+            section_match = re.match(r'(Section\s+)?(\d+(\.\d+)*)', line.strip())
+            if section_match:
+                current_section = section_match.group(2)
+                sections[current_section] = ''
+            elif current_section:
+                sections[current_section] += line + '\n'
+    except Exception as e:
+        logger.error(f"Error parsing document {file_path}: {e}")
+    return sections
+
+def get_section_texts(sections_referenced, sections_dict):
+    section_texts = {}
+    for sec in sections_referenced:
+        text = sections_dict.get(sec)
+        if text:
+            section_texts[sec] = text
+    return section_texts
+
+def embed_section_text(answer_text, section_texts):
+    for sec, text in section_texts.items():
+        answer_text = answer_text.replace(
+            f'Section {sec}',
+            f'Section {sec}: "{text.strip()}"'
+        )
+    return answer_text
+
+# **Run the App**
 
 if __name__ == '__main__':
     app.run(port=5050, debug=True)
