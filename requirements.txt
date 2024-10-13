@@ -1,8 +1,8 @@
 # Web framework
 flask
 
-#ColPali
-byaldi
+#ColPali - some additions to fix memory issues
+git+https://github.com/andreaparker/byaldi/edit/ap-feat/byaldi/colpali.py@feat-ap
 
 # Core ML libraries
 torch
