@@ -165,12 +165,6 @@ For local development:
 echo $OPENAI_API_KEY
 ```
 
-For Terraform (after apply):
-```bash
-terraform output openai_api_key
-```
-
-If configured correctly, these commands should display your API key (or a masked version of it in the case of Terraform).
 
 ### 3.4 Installing `vllm`
 `vllm` is a A high-throughput and memory-efficient inference and serving engine for large language models (LLMs). This script detects if you have a CUDA-compliant GPU on your system and if so will install the `vllm` GPU version for you; if no GPU is detected, the CPU-only version of `vllm` will be installed. Learn more about the `vllm` installation process [here](https://docs.vllm.ai/en/stable/getting_started/installation.html).
@@ -191,10 +185,16 @@ If configured correctly, these commands should display your API key (or a masked
 - model weights, checkpoints will be downloaded from the HuggingFace Hub to your local disk upon loading models for the first time
 
 
-## 5. Access the web interfac
-=======
 
 ### 5. Access the web interface at `http://localhost:5050/` depending on how you deployed it
+
+If you've deployed this up on Lambda Labs or similar: 
+`flask run --host=0.0.0.0 --port=5000`
+
+### for non-test
+`pip install gunicorn`
+`gunicorn --bind 0.0.0.0:5000 wsgi:app`
+
 
 
 ## Usage Guide
